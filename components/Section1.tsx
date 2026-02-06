@@ -14,7 +14,7 @@ const Section1: React.FC = () => {
       />
 
       {/* Soft spring overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-pink-50/30 via-white/20 to-pink-100/40"></div>
+      <div className="absolute inset-0 bg-black/40"></div>
 
       <div className="absolute inset-0 z-10 flex flex-col justify-center items-center px-6">
         <div className="text-center space-y-12 -mt-20">
@@ -32,8 +32,8 @@ const Section1: React.FC = () => {
           {/* Date */}
           <div className="space-y-3 mt-6">
             <div className="w-16 h-px bg-white/50 mx-auto"></div>
-            <p className="font-luxury text-2xl tracking-[0.1em] text-slate-800 font-semibold" style={{ textShadow: '0 0 12px rgba(255,255,255,0.8)' }}>2026. 03. 12</p>
-            <p className="font-inter text-[11px] tracking-[0.5em] text-slate-700 uppercase font-semibold" style={{ textShadow: '0 0 10px rgba(255,255,255,0.8)' }}>Thursday | 2:00 PM</p>
+            <p className="font-luxury text-2xl tracking-[0.1em] text-white/90 font-semibold">2026. 03. 12</p>
+            <p className="font-inter text-[11px] tracking-[0.5em] text-white/60 uppercase font-semibold">Thursday | 2:00 PM</p>
           </div>
         </div>
       </div>

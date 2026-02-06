@@ -108,7 +108,7 @@ const Section4: React.FC = () => {
     const shareData = {
       title: 'JK머트리얼즈 세종캠퍼스 준공식 초대장',
       text: 'JK머트리얼즈 세종캠퍼스 준공식에 귀하를 초대합니다.',
-      url: window.location.href,
+      url: 'https://jkmaterialsinvitation.vercel.app',
     };
 
     if (navigator.share) {
@@ -123,13 +123,13 @@ const Section4: React.FC = () => {
   };
 
   const handleSms = () => {
-    const message = `[JK머트리얼즈] 세종캠퍼스 준공식 초대장입니다.\n아래 링크를 통해 확인해 주세요.\n${window.location.href}`;
+    const message = `[JK머트리얼즈] 세종캠퍼스 준공식 초대장입니다.\n아래 링크를 통해 확인해 주세요.\nhttps://jkmaterialsinvitation.vercel.app`;
     const smsUrl = `sms:?body=${encodeURIComponent(message)}`;
     window.location.href = smsUrl;
   };
 
   const handleLinkCopy = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText('https://jkmaterialsinvitation.vercel.app');
     alert('초대장 링크가 복사되었습니다.');
   };
 

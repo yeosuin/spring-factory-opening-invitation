@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
       publicDir: 'public',
       server: {
         port: 3003,
+        strictPort: true,
         host: '0.0.0.0',
       },
       plugins: [react()],
