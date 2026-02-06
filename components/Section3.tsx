@@ -12,6 +12,7 @@ const galleryImages = [
   { url: "/gallery/7.jpg" },
   { url: "/gallery/8.jpg" },
   { url: "/gallery/9.jpg" },
+  { url: "/gallery/IMG_0426.PNG" },
   { url: "/gallery/IMG_0420.PNG" },
   { url: "/gallery/IMG_0422.PNG" },
   { url: "/gallery/IMG_0424.JPG" },
