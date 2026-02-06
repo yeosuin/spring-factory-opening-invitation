@@ -12,45 +12,30 @@ const galleryImages = [
   { url: "/gallery/7.jpg" },
   { url: "/gallery/8.jpg" },
   { url: "/gallery/9.jpg" },
+  { url: "/gallery/IMG_0419.PNG" },
+  { url: "/gallery/IMG_0420.PNG" },
 ];
 
 const Section3: React.FC = () => {
   const [current, setCurrent] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const [paused, setPaused] = useState(false);
-  const sliderRef = useRef<HTMLDivElement>(null);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const swiping = useRef(false);
 
-  const scrollToIndex = (idx: number) => {
-    setCurrent(idx);
-    if (sliderRef.current) {
-      const child = sliderRef.current.children[idx] as HTMLElement;
-      if (child) {
-        sliderRef.current.scrollTo({ left: child.offsetLeft - 24, behavior: 'smooth' });
-      }
-    }
-  };
-
-  const handleSliderScroll = () => {
-    if (!sliderRef.current) return;
-    const container = sliderRef.current;
-    const scrollLeft = container.scrollLeft;
-    const itemWidth = container.children[0]?.clientWidth || 1;
-    const idx = Math.round(scrollLeft / (itemWidth + 12));
-    if (idx !== current && idx >= 0 && idx < galleryImages.length) {
-      setCurrent(idx);
-    }
-  };
-
-  const goPrev = () => {
-    const prev = current === 0 ? galleryImages.length - 1 : current - 1;
-    scrollToIndex(prev);
-  };
+  const goPrev = useCallback(() => {
+    setCurrent((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1));
+  }, []);
 
   const goNext = useCallback(() => {
-    const next = current === galleryImages.length - 1 ? 0 : current + 1;
-    scrollToIndex(next);
-  }, [current]);
+    setCurrent((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
+  }, []);
+
+  const goTo = (idx: number) => {
+    setCurrent(idx);
+  };
 
   // Auto sliding - 3초 간격
   useEffect(() => {
@@ -66,10 +51,36 @@ const Section3: React.FC = () => {
     };
   }, [current, lightbox, paused, goNext]);
 
-  // 터치하면 일시정지, 5초 후 재개
   const handleUserInteraction = () => {
     setPaused(true);
     setTimeout(() => setPaused(false), 5000);
+  };
+
+  // 터치 스와이프 (가로만 처리, 세로는 페이지 스크롤)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    swiping.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const dx = e.touches[0].clientX - touchStartX.current;
+    const dy = e.touches[0].clientY - touchStartY.current;
+    // 가로 이동이 세로보다 크면 스와이프로 판단
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+      swiping.current = true;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!swiping.current) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    handleUserInteraction();
+    if (dx < -50) {
+      goNext();
+    } else if (dx > 50) {
+      goPrev();
+    }
   };
 
   return (
@@ -79,36 +90,30 @@ const Section3: React.FC = () => {
         <h2 className="font-luxury text-4xl text-white">THE GALLERY</h2>
       </div>
 
-      {/* Continuous Slide Carousel */}
-      <div className="w-full mb-6 relative">
-        <div
-          ref={sliderRef}
-          onScroll={handleSliderScroll}
-          onTouchStart={handleUserInteraction}
-          className="flex overflow-x-auto items-center gap-3 px-6 pb-2"
-          style={{
-            scrollSnapType: 'x mandatory',
-            WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            height: '45vh',
-          }}
-        >
-          {galleryImages.map((img, idx) => (
-            <div
-              key={idx}
-              className="flex-shrink-0 cursor-pointer rounded-sm overflow-hidden flex items-center justify-center"
-              style={{ scrollSnapAlign: 'center', height: '100%' }}
-              onClick={() => { setCurrent(idx); setLightbox(true); }}
-            >
+      {/* Slide Carousel */}
+      <div
+        className="w-full mb-6 relative"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="w-full px-6 relative overflow-hidden" style={{ height: '45vh' }}>
+          <div className="flex items-center justify-center h-full">
+            {galleryImages.map((img, idx) => (
               <img
+                key={idx}
                 src={img.url}
                 alt={`Photo ${idx + 1}`}
-                className="max-h-full w-auto object-contain rounded-sm"
+                className={`absolute max-h-full max-w-[85%] object-contain rounded-sm cursor-pointer transition-all duration-500 ${
+                  idx === current
+                    ? 'opacity-100 scale-100'
+                    : 'opacity-0 scale-95 pointer-events-none'
+                }`}
+                onClick={() => { setCurrent(idx); setLightbox(true); }}
                 loading="lazy"
               />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Prev / Next */}
@@ -122,11 +127,11 @@ const Section3: React.FC = () => {
 
       {/* Thumbnail Grid */}
       <div className="w-full px-6">
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-6 gap-1.5">
           {galleryImages.map((img, idx) => (
             <div
               key={idx}
-              onClick={() => scrollToIndex(idx)}
+              onClick={() => { handleUserInteraction(); goTo(idx); }}
               className={`relative aspect-square overflow-hidden rounded-sm cursor-pointer transition-all duration-300 ${idx === current ? 'ring-2 ring-rose-300 opacity-100' : 'opacity-50'}`}
             >
               <img
